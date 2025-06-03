@@ -1,3 +1,5 @@
+@import 'variables'; // ← これを先頭に追加！
 @import 'bootstrap/scss/bootstrap';
 @import 'bootstrap-icons/font/bootstrap-icons';
 @import 'top';
+//@import "custom"; // ← 追加：bootstrapの後に読み込むことで上書き可能に
