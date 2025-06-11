@@ -1,0 +1,28 @@
+<%= form_with url: promises_path, method: :post do |f| %>
+  <% [:offeror, :offeree, :witnesse].each do |role| %>
+    <div class='row justify-content-center my-5 mx-5 fs-4'>
+      <div class="col-1 my-auto ps-5">
+        <%= t("attributes.user.role.#{role}") %>
+      </div>
+      <div class="col-1">
+        <%= f.label "#{role}_family_name", 'family_name', class: "visually-hidden" %>
+        <%= f.text_field "#{role}[family_name]", placeholder: Guest.human_attribute_name("family_name"), class: 'form-control form-control-lg' %>
+      </div>
+      <div class="col-1">
+        <%= f.label "#{role}_given_name", 'family_name', class: "visually-hidden" %>
+        <%= f.text_field "#{role}[given_name]", placeholder: Guest.human_attribute_name("given_name"), class: 'form-control form-control-lg' %>
+      </div>
+      <div class="col-3">
+        <%= f.label "#{role}_handle_name", 'family_name', class: "visually-hidden" %>
+        <%= f.text_field "#{role}[handle_name]", placeholder: Guest.human_attribute_name("handle_name"), class: 'form-control form-control-lg' %>
+      </div>
+      <div class="col-6">
+        <%= f.label "#{role}_email", 'family_name', class: "visually-hidden" %>
+        <%= f.email_field "#{role}[email]", placeholder: Guest.human_attribute_name("email"), class: 'form-control form-control-lg' %>
+      </div>  
+    </div>
+  <% end %>
+  <div class="d-flex justify-content-center ">
+    <%= f.submit t("attributes.start_offer"), class: 'btn btn-teal mb-5 px-5 py-4 fs-3' %>
+  </div>
+<% end %>

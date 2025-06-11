@@ -2,31 +2,49 @@ ja:
   activerecord:
     models:
       user: ユーザー
-      board: 掲示板
+      promise: 約束
       comment: コメント
     attributes:
-      user:
+      guest:
         email: メールアドレス
-        last_name: 姓
-        first_name: 名
+        family_name: 姓
+        given_name: 名
+        full_name: 氏名
+        handle_name: 表示名
+        avatar: アバター
+        password: パスワード
+        password_confirmation: パスワード確認
+        role: 権限
+      promise:
+        title: タイトル
+        body: 本文
+        board_image: サムネイル
+        user: 作成者
+        email: メールアドレス
+        family_name: 姓
+        given_name: 名
         full_name: 氏名
         avatar: アバター
         password: パスワード
         password_confirmation: パスワード確認
         role: 権限
-      board:
-        title: タイトル
-        body: 本文
-        board_image: サムネイル
-        user: 作成者
+      promise_participant:
+        hoge: foo
+        enums:
+          guest:
+            role:
+              offeror: 申込者
+              offeree: 相手方
+              witnesse: 立会人
       comment:
         body: コメント
   attributes:
     id: ID
     created_at: 作成日時
     updated_at: 更新日時
-  enums:
     user:
       role:
-        general: 一般
-        admin: 管理者
+        offeror: 申込者
+        offeree: 相手方
+        witnesse: 立会人
+    start_offer: 申込開始

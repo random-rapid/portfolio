@@ -5,4 +5,6 @@ Rails.application.routes.draw do
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   # Defines the root path route ("/")
   root 'static_pages#top'
+  resources :guests, only: %i[new create]
+  resources :promises, only: %i[new create show]
 end
