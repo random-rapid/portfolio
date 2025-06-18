@@ -1,0 +1,61 @@
+<%= form_with model: promise do |f| %>
+  <%= render 'shared/error_messages', object: f.object %>
+  <div class='row justify-content my-3 fs-5'>
+    <div class="col-4">
+      <% offeror_name = GuestDecorator.decorate(f.object.guest_offerors[0]).full_name %>
+      <%= label_tag 'offeror_name', nil, class: "visually-hidden" %>
+      <%= text_field_tag 'offeror_name', nil, placeholder: offeror_name, class: "form-control", readonly: true %>
+    </div>
+    <div class="col-1">
+    は
+    </div>
+    <div class="col-4">
+      <% offeree_name = GuestDecorator.decorate(f.object.guest_offerees[0]).full_name %>
+      <%= label_tag 'offeree_name', nil, class: "visually-hidden" %>
+      <%= text_field_tag 'offeree_name', nil, placeholder: offeree_name, class: "form-control", readonly: true %>
+    </div>
+    <div class="col-3">
+    に対して
+    </div>
+  </div>
+
+  <div class='row justify-content my-3 fs-5'>
+    <div class="col-6">
+      <%= f.label :deadline, class: "visually-hidden" %>
+      <%= f.date_field :deadline, class: 'form-control' %>
+    </div>
+    <div class="col-6">
+    までに
+    </div>
+  </div>
+
+  <div class="my-3">
+    <%= f.label :content, class: "visually-hidden" %>
+    <%= f.text_area :content, placeholder: Promise.human_attribute_name('content'),  class: "form-control", rows: "6" %>
+  </div>
+
+  <div class="my-3  fs-5">
+    達成できなかった場合は
+  </div>
+
+  <div class="my-3">
+    <%= f.label :penalty, class: "visually-hidden" %>
+    <%= f.text_area :penalty, placeholder: Promise.human_attribute_name('penalty'),  class: "form-control", rows: "2" %>
+  </div>
+
+  <div class='row justify-content my-3 fs-5'>
+    <div class="col-8 text-end">
+      立会人：
+    </div>
+    <div class="col-4">
+      <% witnesse_name = GuestDecorator.decorate(f.object.guest_witnesses[0]).full_name %>
+      <%= label_tag 'witnesse_name', nil, class: "visually-hidden" %>
+      <%= text_field_tag 'witnesse_name', nil, placeholder: witnesse_name, class: "form-control", readonly: true %>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-center ">
+    <%= f.submit t("attributes.offer"), class: 'btn btn-teal my-5 px-5 py-2 fs-3' %>
+  </div>
+
+<% end %>

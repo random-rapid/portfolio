@@ -1,7 +1,7 @@
 class Promise < ApplicationRecord
-  validates :content, presence: true
-  validates :deadline, presence: true
-  validates :penalty, presence: true
+  validates :content, presence: true, on: :update
+  validates :deadline, presence: true, on: :update
+  validates :penalty, presence: true, on: :update
 
   has_many :promise_participants, dependent: :destroy
   #has_many :users, through: :promise_participants

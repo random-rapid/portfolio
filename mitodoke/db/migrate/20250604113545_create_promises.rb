@@ -1,9 +1,9 @@
 class CreatePromises < ActiveRecord::Migration[7.2]
   def change
     create_table :promises do |t|
-      t.text :content,          null: false
-      t.datetime :deadline,     null: false
-      t.text :penalty,          null: false
+      t.text :content
+      t.datetime :deadline
+      t.text :penalty
       t.integer :progress
       t.integer :status
       t.datetime :accepted_at

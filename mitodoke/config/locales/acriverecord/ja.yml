@@ -16,10 +16,9 @@ ja:
         password_confirmation: パスワード確認
         role: 権限
       promise:
-        title: タイトル
-        body: 本文
-        board_image: サムネイル
-        user: 作成者
+        content: 約束内容
+        deadline: 締切
+        penalty: ペナルティ
         email: メールアドレス
         family_name: 姓
         given_name: 名
@@ -48,3 +47,5 @@ ja:
         offeree: 相手方
         witnesse: 立会人
     start_offer: 申込開始
+    confirm: 確認画面
+    offer: 申し込む

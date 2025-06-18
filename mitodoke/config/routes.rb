@@ -6,5 +6,5 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   root 'static_pages#top'
   resources :guests, only: %i[new create]
-  resources :promises, only: %i[new create show]
+  resources :promises, only: %i[new create show edit update]
 end

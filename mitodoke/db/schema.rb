@@ -38,9 +38,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_04_133930) do
   end
 
   create_table "promises", force: :cascade do |t|
-    t.text "content", null: false
-    t.datetime "deadline", null: false
-    t.text "penalty", null: false
+    t.text "content"
+    t.datetime "deadline"
+    t.text "penalty"
     t.integer "progress"
     t.integer "status"
     t.datetime "accepted_at"
