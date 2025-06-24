@@ -12,10 +12,14 @@
         <%= label_tag "#{role}_given_name", 'family_name', class: "visually-hidden" %>
         <%= text_field_tag "#{role}[given_name]", nil, placeholder: Guest.human_attribute_name("given_name"), class: 'form-control form-control-lg' %>
       </div>
+      <%
+=begin %>
       <div class="col-3">
         <%= label_tag "#{role}_handle_name", 'family_name', class: "visually-hidden" %>
         <%= text_field_tag "#{role}[handle_name]", nil, placeholder: Guest.human_attribute_name("handle_name"), class: 'form-control form-control-lg' %>
       </div>
+      <%
+=end %>
       <div class="col-6">
         <%= label_tag "#{role}_email", 'family_name', class: "visually-hidden" %>
         <%= email_field_tag "#{role}[email]", nil, placeholder: Guest.human_attribute_name("email"), class: 'form-control form-control-lg' %>

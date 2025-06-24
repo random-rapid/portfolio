@@ -33,15 +33,15 @@ class Promise < ApplicationRecord
            source: :guest
 
   # userかguestかに関わらずに呼びだす
-  def all_offerors
+  def call_offerors
     promise_participants.where(role: 'offeror')
   end
 
-  def all_offerees
+  def call_offerees
     promise_participants.where(role: 'offeree')
   end
 
-  def all_winesses
+  def call_winesses
     promise_participants.where(role: 'witnesse')
   end
 end

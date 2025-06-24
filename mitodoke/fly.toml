@@ -25,3 +25,6 @@ web = "bin/rails server -b 0.0.0.0 -p 3000"
 
 [[vm]]
   size = 'shared-cpu-1x'
+
+[deploy]
+release_command = "./bin/rails db:migrate"

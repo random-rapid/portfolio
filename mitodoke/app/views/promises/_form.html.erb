@@ -1,4 +1,5 @@
-<%= form_with model: promise do |f| %>
+<%= form_with model: promise, url: promise_path(promise, token: params[:token]), method: :patch do |f| %>
+  <%= hidden_field_tag :token, params[:token] %>
   <%= render 'shared/error_messages', object: f.object %>
   <div class='row justify-content my-3 fs-5'>
     <div class="col-4">

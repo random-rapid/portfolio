@@ -1,5 +1,5 @@
 class PromiseParticipant < ApplicationRecord
-  enum role: { offeror: 0, offeree: 1, witnesse: 2 }
+  enum :role, { offeror: 0, offeree: 1, witnesse: 2 }
 
   belongs_to :promise, optional: true
   #belongs_to :user, optional: true
@@ -7,7 +7,7 @@ class PromiseParticipant < ApplicationRecord
 
   validates :role, presence: true
   #validate :either_user_or_guest_present
-  validates :token, presence: true, if: -> { guest_id.present? }
+  validates :token, presence: true, uniqueness: true, if: -> { guest_id.present? }
 
   before_validation :generate_token_if_guest
 

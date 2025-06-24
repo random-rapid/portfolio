@@ -1,0 +1,5 @@
+<h2><%= @participant.guest.decorate.full_name %> さん、以下の約束を承認しますか？</h2>
+
+<p><%= @promise.content %></p>
+
+<%= button_to '承認する', perform_approval_promise_path(@promise, token: @participant.token), method: :patch, class: "btn btn-primary" %>
