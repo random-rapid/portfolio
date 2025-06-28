@@ -1,0 +1,5 @@
+<h2><%= @participant.guest.decorate.full_name %> さん、以下の約束に立ち会いますか？</h2>
+
+<p><%= @promise.content %></p>
+
+<%= button_to '立ち会う', perform_witnesse_promise_path(@promise, token: @participant.token), method: :patch, class: "btn btn-success" %>

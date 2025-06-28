@@ -5,4 +5,15 @@ Rails.application.routes.draw do
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   # Defines the root path route ("/")
   root 'static_pages#top'
+  resources :guests, only: %i[new create]
+  resources :promises, only: %i[new create show edit update] do
+    member do
+      get :approve                 # offeree承認画面
+      patch :perform_approve     # offeree承認実行
+      get :witnesse        # witnesse立会画面
+      patch :perform_witnesse # witnesse立会実行
+      get :confirm
+    end
+  end
+  mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
 end

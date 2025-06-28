@@ -1,0 +1,10 @@
+<h1>
+  メールです
+</h1>
+<div>
+  <%= @guest.handle_name %> さんへ
+</div>
+<div>
+  テストメールです。
+  <%= approve_promise_url(@promise.id, token: @participant.token) %>
+</div>
