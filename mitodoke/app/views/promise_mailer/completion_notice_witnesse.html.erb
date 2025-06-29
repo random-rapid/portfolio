@@ -1,0 +1,18 @@
+<p><%= @witnesse.guest.decorate.full_name %>さん</p>
+
+<p>
+「<%= @promise.content %>」の約束が完了申請され、相手によって承認されました。<br>
+あなたはこの約束の立会人として、証拠を確認し、最終確認をお願いします。
+</p>
+
+<p>
+以下のリンクから確認してください：
+</p>
+
+<p>
+  <a href="<%= promise_url(@promise, token: @witnesse.token) %>">
+    約束の内容を確認する
+  </a>
+</p>
+
+<p>引き続きよろしくお願いいたします。</p>

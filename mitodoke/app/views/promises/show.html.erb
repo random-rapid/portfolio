@@ -1,0 +1,105 @@
+<% content_for(:title, t('.title')) %>
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8 offset-lg-2">
+      <% if @role == 'offeror' %>
+        <% form_url = promise_path(@promise, token: @participant.token) %>
+      <% elsif @role == 'offeree' %>
+        <% form_url = review_completion_promise_path(@promise, token: @participant.token) %>
+      <% elsif @role == 'witnesse' %>
+        <% form_url = completion_witnesse_promise_path(@promise, token: @participant.token) %>
+      <% else %>
+        <p>この画面にはアクセスできません。</p>
+        <% return %>
+      <% end %>
+      <%= form_with model: @promise, url: form_url, method: :patch, local: true do |f| %>
+        <%= hidden_field_tag :token, @participant.token %>
+        <%= render 'shared/error_messages', object: f.object %>
+        <div class='row justify-content my-3 fs-5'>
+          <div class="col-4">
+            <% offeror_name = GuestDecorator.decorate(f.object.guest_offerors[0]).full_name %>
+            <%= label_tag 'offeror_name', nil, class: "visually-hidden" %>
+            <%= text_field_tag 'offeror_name', nil, placeholder: offeror_name, class: "form-control", readonly: true %>
+          </div>
+          <div class="col-1">
+          は
+          </div>
+          <div class="col-4">
+            <% offeree_name = GuestDecorator.decorate(f.object.guest_offerees[0]).full_name %>
+            <%= label_tag 'offeree_name', nil, class: "visually-hidden" %>
+            <%= text_field_tag 'offeree_name', nil, placeholder: offeree_name, class: "form-control", readonly: true %>
+          </div>
+          <div class="col-3">
+          に対して
+          </div>
+        </div>
+
+        <div class='row justify-content my-3 fs-5'>
+          <div class="col-6">
+            <%= f.label :deadline, class: "visually-hidden" %>
+            <%= f.date_field :deadline, class: 'form-control', readonly: true %>
+          </div>
+          <div class="col-6">
+          までに
+          </div>
+        </div>
+
+        <div class="my-3">
+          <%= f.label :content, class: "visually-hidden" %>
+          <%= f.text_area :content, placeholder: Promise.human_attribute_name('content'),  class: "form-control", rows: "6", readonly: true %>
+        </div>
+
+        <div class="my-3  fs-5">
+          達成できなかった場合は
+        </div>
+
+        <div class="my-3">
+          <%= f.label :penalty, class: "visually-hidden" %>
+          <%= f.text_area :penalty, placeholder: Promise.human_attribute_name('penalty'),  class: "form-control", rows: "2", readonly: true %>
+        </div>
+
+        <div class='row justify-content my-3 fs-5'>
+          <div class="col-8 text-end">
+            立会人：
+          </div>
+          <div class="col-4">
+            <% witnesse_name = GuestDecorator.decorate(f.object.guest_witnesses[0]).full_name %>
+            <%= label_tag 'witnesse_name', nil, class: "visually-hidden" %>
+            <%= text_field_tag 'witnesse_name', nil, placeholder: witnesse_name, class: "form-control", readonly: true %>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-center ">
+          <% if @promise.progress == 3 %>
+            <%# 立会済み %>
+            <% if @role != 'witnesse' %>
+              <%= link_to "完了申請", complete_form_promise_path(@promise, token: @participant.token), method: :get, class: 'btn btn-teal my-5 px-5 py-2 fs-3' %>
+              <%#= button_to "解除申請", perform_reject_promise_path(@promise, token: @participant.token), method: :patch, class: 'btn btn-pink ms-5 my-5 px-5 py-2 fs-3' %>
+            <% else %>
+              <p>完了待ちです。</p>
+            <% end %>
+          <% elsif @promise.progress == 4 %>
+            <%# 完了申請中 %>
+            <div class="text-center my-3">
+              <% if @role == @promise.completed_by || @role == 'witnesse' %>
+                <p class="text-info">完了申請中です。相手の承諾をお待ちください。</p>
+              <% else %>
+                <%= link_to "証拠の確認", review_completion_promise_path(@promise, token: @participant.token), class: "btn btn-teal my-5 px-5 py-2 fs-3" %>
+              <% end %>
+            </div>
+          <% elsif @promise.progress == 5 %>
+            <%# 完了承認済み %>
+            <% if @role == 'witnesse' %>
+              <%= button_to "完了の立会", completion_witnesse_promise_path(@promise, token: @participant.token), method: :patch, class: 'btn btn-teal my-5 px-5 py-2 fs-3' %>
+            <% else %>
+              <p class="text-success">承諾されています。立ち会い待ちです。</p>
+            <% end %>
+          <% else %>
+            <%# witnessも立会完了済み %>
+            <p class="text-success">この約束は達成されました。</p>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

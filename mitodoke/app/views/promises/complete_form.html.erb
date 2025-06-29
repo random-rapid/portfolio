@@ -1,0 +1,7 @@
+<%= form_with model: @promise, url: submit_completion_promise_path(@promise, token: params[:token]), method: :patch, local: true, multipart: true do |f| %>
+  <div class="mb-3">
+    <%= f.label :image, "証拠画像を選択してください" %>
+    <%= f.file_field :evidence, accept: 'image/*', class: "form-control" %>
+  </div>
+  <%= f.submit "完了申請", class: "btn btn-teal" %>
+<% end %>

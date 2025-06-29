@@ -1,0 +1,22 @@
+<% content_for(:title, "証拠の確認") %>
+
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <h2 class="my-4">提出された証拠</h2>
+
+      <% if @promise.evidence.attached? %>
+        <div class="mb-4">
+          <%= image_tag @promise.evidence, class: "img-fluid rounded shadow" %>
+        </div>
+      <% else %>
+        <p class="text-muted">証拠画像は提出されていません。</p>
+      <% end %>
+
+      <div class="d-flex justify-content-between">
+        <%= button_to "承諾する", accept_completion_promise_path(@promise, token: @participant.token), method: :patch, class: "btn btn-success px-4 py-2 fs-4" %>
+        <%= button_to "却下する", reject_completion_promise_path(@promise, token: @participant.token), method: :patch, class: "btn btn-danger px-4 py-2 fs-4" %>
+      </div>
+    </div>
+  </div>
+</div>
