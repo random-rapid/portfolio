@@ -6,6 +6,7 @@ class Promise < ApplicationRecord
   has_many :promise_participants, dependent: :destroy
   #has_many :users, through: :promise_participants
   has_many :guests, through: :promise_participants
+  has_one_attached :evidence
 
   # 役割別の参加者取得
   has_many :user_offerors, -> { where(promise_participants: { role: 'offeror' }) },

@@ -13,6 +13,14 @@
       <p>この画面にはアクセスできません。</p>
       <% return %>
     <% end %>
+      <% flash.each do |key, message| %>
+        <% if message.present? %>
+          <div class="alert alert-<%= key == 'notice' ? 'success' : 'danger' %>">
+            <%= message %>
+          </div>
+        <% end %>
+      <% end %>
+
       <%= form_with model: @promise, url: form_url, method: :patch do |f| %>
         <%= hidden_field_tag :token, @participant.token %>
         <%= render 'shared/error_messages', object: f.object %>
@@ -71,15 +79,24 @@
         </div>
 
         <div class="d-flex justify-content-center ">
-          <% if @promise.progress < 2 %>
+          <% if @promise.progress == 0 %>
+            <%# まだoffereeが承認していない状態 %>
+            <% if @role == 'offeror' %>
+              <p class="text-danger fs-4 text-center">この約束は拒否されました。</p>
+              <%= link_to "修正する", edit_promise_path(@promise, token: @participant.token), method: :get, class: 'btn btn-teal my-5 px-5 py-2 fs-3' %>
+            <% else %>
+              <p class="text-muted">この約束を拒否しました。</p>
+            <% end %>
+          <% elsif @promise.progress == 1 %>
             <%# まだoffereeが承認していない状態 %>
             <% if @role == 'offeree' %>
               <%= button_to "承認する", perform_approve_promise_path(@promise, token: @participant.token), method: :patch, class: 'btn btn-teal my-5 px-5 py-2 fs-3' %>
+              <%= button_to "拒否する", perform_reject_promise_path(@promise, token: @participant.token), method: :patch, class: 'btn btn-pink ms-5 my-5 px-5 py-2 fs-3' %>
             <% else %>
               <p class="text-muted">承認待ちです。</p>
             <% end %>
 
-          <% elsif @promise.progress < 3 %>
+          <% elsif @promise.progress == 2 %>
             <%# offeree承認済み、witness立会待ち %>
             <% if @role == 'witnesse' %>
               <%= button_to "立ち会う", perform_witnesse_promise_path(@promise, token: @participant.token), method: :patch, class: 'btn btn-teal my-5 px-5 py-2 fs-3' %>
@@ -89,7 +106,8 @@
 
           <% else %>
             <%# witnessも立会完了済み %>
-            <p class="text-success">この約束はすでに完了しています。</p>
+            <p class="text-success">この約束の申請は完了しています。</p>
+            <%= link_to "詳細へ", promise_path(@promise, token: @participant.token), method: :get, class: 'btn btn-teal my-5 px-5 py-2 fs-3' %>
           <% end %>
         </div>
       <% end %>

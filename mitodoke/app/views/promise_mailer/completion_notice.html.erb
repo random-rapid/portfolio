@@ -1,0 +1,19 @@
+<p><%= @target.guest.decorate.full_name %>さん</p>
+
+<p>以下の約束が完了申請されました。</p>
+
+<ul>
+  <li><strong>約束内容:</strong> <%= @promise.content %></li>
+  <li><strong>期限:</strong> <%= l(@promise.deadline) %></li>
+  <li><strong>ペナルティ:</strong> <%= @promise.penalty %></li>
+</ul>
+
+<p>確認のため、以下のリンクから内容をご確認ください。</p>
+
+<p>
+  <a href="<%= promise_url(@promise, token: @target.token) %>">
+    約束の内容を確認する
+  </a>
+</p>
+
+<p>Mitodokeより</p>

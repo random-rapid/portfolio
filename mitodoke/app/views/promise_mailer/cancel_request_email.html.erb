@@ -1,0 +1,10 @@
+<%= @recipient.guest.decorate.full_name %> さん
+
+<%= @promise.cancel_requested_by == "offeror" ? "申込者" : "被申込者" %> から、約束解除の申請がありました。
+
+以下のリンクから確認・承認してください：
+<p>
+  <a href="<%= promise_url(@promise, token: @recipient.token) %>">
+    約束の内容を確認する
+  </a>
+</p>

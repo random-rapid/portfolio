@@ -35,6 +35,16 @@ class PromisesController < ApplicationController
 
   def show
     @promise = Promise.find(params[:id])
+    @participant = @promise.promise_participants.find_by(token: params[:token])
+
+    if @participant.nil?
+      render plain: "不正なアクセスです", status: :forbidden and return
+    end
+
+    @role = @participant.role
+    @offeror = @promise.guest_offerors.first.decorate
+    @offeree = @promise.guest_offerees.first.decorate
+    @witnesse = @promise.guest_witnesses.first.decorate
   end
 
   def edit
@@ -106,8 +116,27 @@ class PromisesController < ApplicationController
     end
 
     @promise.update!(progress: 2)
-    witness = @promise.promise_participants.find_by(role: 'witnesse')
-    PromiseMailer.witnesse_email(@promise, witness).deliver_later
+    witnesse = @promise.promise_participants.find_by(role: 'witnesse')
+    PromiseMailer.witnesse_email(@promise, witnesse).deliver_later
+
+    redirect_to confirm_promise_path(@promise, token: params[:token]), status: :see_other
+  end
+
+  def perform_reject
+    @promise = Promise.find(params[:id])
+    participant = @promise.promise_participants.find_by(token: params[:token])
+
+    if participant&.role != 'offeree'
+      render plain: "不正なアクセスです", status: :forbidden and return
+    end
+
+    # すでに承認または拒否済みなら confirm に戻す
+    if @promise.progress >= 2
+      redirect_to confirm_promise_path(@promise, token: params[:token]), status: :see_other
+      return
+    end
+
+    @promise.update!(progress: 0)
 
     redirect_to confirm_promise_path(@promise, token: params[:token]), status: :see_other
   end
@@ -130,24 +159,207 @@ class PromisesController < ApplicationController
     redirect_to confirm_promise_path(@promise, token: params[:token]), status: :see_other
   end
 
+  def complete_form
+    @promise = Promise.find(params[:id])
+    @evidence = Evidence.new
+  end
+
+  def submit_completion
+    @promise = Promise.find(params[:id])
+    participant = @promise.promise_participants.find_by(token: params[:token])
+
+    unless %w[offeror offeree].include?(participant&.role)
+      render plain: "不正なアクセスです", status: :forbidden and return
+    end
+
+    # すでに完了申請済みならリダイレクト
+    if @promise.progress == 4
+      redirect_to promise_path(@promise, token: params[:token]), status: :see_other
+      return
+    end
+    if params[:promise].present? && params[:promise][:evidence].present?
+      @promise.evidence.attach(params[:promise][:evidence])
+      @promise.update!(progress: 4, completed_by: participant.role)
+
+      # メール送信
+      target = @promise.promise_participants.find_by(role: participant.role == 'offeror' ? 'offeree' : 'offeror')
+      PromiseMailer.completion_notice(@promise, target).deliver_later
+
+      redirect_to promise_path(@promise, token: params[:token]), notice: "完了申請を受け付けました"
+    else
+      flash.now[:alert] = "画像を選択してください"
+      render :complete_form, status: :unprocessable_entity
+      return
+    end
+  end
+
+  def review_completion
+    @promise = Promise.find(params[:id])
+    @participant = @promise.promise_participants.find_by(token: params[:token])
+
+    if @participant.nil? || @participant.role == @promise.completed_by
+      render plain: "不正なアクセスです", status: :forbidden and return
+    end
+  end
+
+  def accept_completion
+    @promise = Promise.find(params[:id])
+    participant = @promise.promise_participants.find_by(token: params[:token])
+
+    if participant.nil? || participant.role == @promise.completed_by
+      render plain: "不正なアクセスです", status: :forbidden and return
+    end
+
+    @promise.update!(progress: 5)
+
+    witnesse = @promise.promise_participants.find_by(role: 'witnesse')
+    PromiseMailer.completion_notice_witnesse(@promise, witnesse).deliver_later
+
+    redirect_to promise_path(@promise, token: params[:token]), status: :see_other
+  end
+
+  def reject_completion
+    @promise = Promise.find(params[:id])
+    participant = @promise.promise_participants.find_by(token: params[:token])
+
+    if participant.nil? || participant.role == @promise.completed_by
+      render plain: "不正なアクセスです", status: :forbidden and return
+    end
+
+    @promise.update!(progress: 3)
+    redirect_to promise_path(@promise, token: params[:token]), status: :see_other
+  end
+
+  def completion_witnesse
+    @promise = Promise.find(params[:id])
+    participant = @promise.promise_participants.find_by(token: params[:token])
+
+    unless participant&.role == 'witnesse'
+      render plain: "不正なアクセスです", status: :forbidden and return
+    end
+
+    Rails.logger.debug "DEBUG: 現在のprogressは#{@promise.progress}"
+
+    # すでに立会済みならリダイレクト
+    if @promise.progress >= 6
+      Rails.logger.debug "すでにprogressが5以上のため、リダイレクトします"
+      redirect_to promise_path(@promise, token: params[:token]), status: :see_other
+      return
+    end
+
+    # 完了承認
+    if @promise.update(progress: 6)
+      Rails.logger.info "progressを6に更新しました"
+      redirect_to promise_path(@promise, token: params[:token]), notice: "完了を確認しました", status: :see_other
+    else
+      Rails.logger.error "progressの更新に失敗しました: #{@promise.errors.full_messages}"
+      render plain: "更新失敗", status: :internal_server_error
+    end
+  end
+
+  def request_cancel
+    @promise = Promise.find(params[:id])
+    participant = @promise.promise_participants.find_by(token: params[:token])
+
+    unless %w[offeror offeree].include?(participant&.role)
+      render plain: "不正なアクセスです", status: :forbidden and return
+    end
+
+    if @promise.progress >= 7
+      redirect_to promise_path(@promise, token: params[:token]), status: :see_other and return
+    end
+
+    @promise.update!(progress: 7, cancel_requested_by: participant.role)
+
+    # 相手方にメール通知
+    target_role = participant.role == "offeror" ? "offeree" : "offeror"
+    target = @promise.promise_participants.find_by(role: target_role)
+    PromiseMailer.cancel_request_email(@promise, target).deliver_later
+
+    redirect_to promise_path(@promise, token: params[:token]), notice: "解除申請を送信しました", status: :see_other
+  end
+
+  def approve_cancel
+    @promise = Promise.find(params[:id])
+    participant = @promise.promise_participants.find_by(token: params[:token])
+
+    unless %w[offeror offeree].include?(participant&.role)
+      render plain: "不正なアクセスです", status: :forbidden and return
+    end
+
+    if @promise.progress != 7
+      redirect_to promise_path(@promise, token: params[:token]), notice: "まだ解除申請はありません", status: :see_other
+      return
+    end
+
+    # 申請者と逆のロールであることを確認
+    if participant.role == @promise.cancel_requested_by
+      render plain: "解除申請者は承認できません", status: :forbidden and return
+    end
+
+    @promise.update!(progress: 8)
+    witnesse = @promise.promise_participants.find_by(role: 'witnesse')
+    if witnesse.nil? || witnesse.guest.nil?
+      Rails.logger.error "[PromiseMailer] witnesse or witnesse.guest is nil"
+    else
+      PromiseMailer.cancel_witnesse_email(@promise, witnesse).deliver_later
+    end
+    #PromiseMailer.cancel_witnesse_email(@promise, witnesse).deliver_later
+
+    redirect_to promise_path(@promise, token: params[:token]), notice: "解除を承認しました", status: :see_other
+  end
+
+  def reject_cancel
+    @promise = Promise.find(params[:id])
+    participant = @promise.promise_participants.find_by(token: params[:token])
+
+    unless %w[offeror offeree].include?(participant&.role)
+      render plain: "不正なアクセスです", status: :forbidden and return
+    end
+
+    # progressが7（解除申請中）でなければ無効
+    if @promise.progress != 7
+      redirect_to promise_path(@promise, token: params[:token]), notice: "解除申請はありません", status: :see_other
+      return
+    end
+
+    # 申請者自身は拒否できない
+    if participant.role == @promise.cancel_requested_by
+      render plain: "申請者は拒否できません", status: :forbidden and return
+    end
+
+    # progress を 3 に戻す（立会完了状態に戻す）
+    @promise.update!(progress: 3, cancel_requested_by: nil)
+
+    redirect_to promise_path(@promise, token: params[:token]), notice: "解除申請を拒否しました", status: :see_other
+  end
+
+  # 立会（progress: 9）
+  def complete_cancel
+    @promise = Promise.find(params[:id])
+    participant = @promise.promise_participants.find_by(token: params[:token])
+
+    unless participant&.role == 'witnesse'
+      render plain: "不正なアクセスです", status: :forbidden and return
+    end
+
+    if @promise.progress >= 9
+      redirect_to promise_path(@promise, token: params[:token]), notice: "すでに解除は完了しています", status: :see_other
+      return
+    end
+
+    @promise.update!(progress: 9)
+    redirect_to promise_path(@promise, token: params[:token]), notice: "解除が完了しました", status: :see_other
+  end
+
   private
 
   def promise_params
     params.require(:promise).permit(:content, :deadline, :penalty)
   end
 
-  def notify_next_participant(promise)
-    case promise.progress
-    when 1
-      guest = promise.guest_offerees.first
-      participant = promise.promise_participants.find_by(token: params[:token])
-      PromiseMailer.with(guest:, promise:, participant:).notify_offeree.deliver_later
-    when 2
-      guest = promise.guest_witnesses.first
-      participant = promise.promise_participants.find_by(token: params[:token])
-      PromiseMailer.with(guest:, promise:, participant:).notify_witnesse.deliver_later
-    else
-      Rails.logger.info "No further notifications required at progress=#{promise.progress}"
-    end
+  def evidence_params
+    params.require(:evidence).permit(:image)
   end
+
 end

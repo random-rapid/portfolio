@@ -1,0 +1,10 @@
+<%= @witnesse.guest.decorate.full_name %> さん
+
+約束解除に関して、両当事者が合意しました。
+以下のリンクから解除の立会いを完了してください：
+
+<p>
+  <a href="<%= promise_url(@promise, token: @witnesse.token) %>">
+    約束の内容を確認する
+  </a>
+</p>
