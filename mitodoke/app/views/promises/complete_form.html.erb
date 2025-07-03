@@ -1,7 +1,16 @@
-<%= form_with model: @promise, url: submit_completion_promise_path(@promise, token: params[:token]), method: :patch, local: true, multipart: true do |f| %>
-  <div class="mb-3">
-    <%= f.label :image, "証拠画像を選択してください" %>
-    <%= f.file_field :evidence, accept: 'image/*', class: "form-control" %>
+<% content_for(:title, t('.title')) %>
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8 offset-lg-2">
+      <%= form_with model: @promise, url: submit_completion_promise_path(@promise, token: params[:token]), method: :patch, local: true, multipart: true do |f| %>
+        <div class="mb-3">
+          <%= f.label :image, "証拠画像を選択してください。", class: "my-3  fs-5" %>
+          <%= f.file_field :evidence, accept: 'image/*', class: "form-control" %>
+        </div>
+        <div class="d-flex justify-content-center ">
+          <%= f.submit "完了申請", class: 'btn btn-teal my-5 px-5 py-2 fs-3' %>
+        </div>
+      <% end %>
+    </div>
   </div>
-  <%= f.submit "完了申請", class: "btn btn-teal" %>
-<% end %>
+</div>

@@ -21,6 +21,9 @@ Rails.application.routes.draw do
       patch :accept_completion
       patch :reject_completion
       patch :completion_witnesse
+      patch :request_cancel         # 解除申請
+      patch :approve_cancel         # 相手方の解除承認
+      patch :complete_cancel        # 解除立会完了
     end
   end
   mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?

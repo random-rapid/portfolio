@@ -38,7 +38,7 @@ gem "bootsnap", require: false
 
 gem 'rails-i18n', '~> 7.0.0'
 gem 'draper', '4.0.2'
-gem 'dotenv-rails', require: 'dotenv/rails-now'
+gem 'dotenv-rails', require: 'dotenv/load'
 gem 'image_processing', '~> 1.2'
 
 group :development, :test do

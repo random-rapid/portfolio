@@ -74,7 +74,7 @@
             <%# 立会済み %>
             <% if @role != 'witnesse' %>
               <%= link_to "完了申請", complete_form_promise_path(@promise, token: @participant.token), method: :get, class: 'btn btn-teal my-5 px-5 py-2 fs-3' %>
-              <%#= button_to "解除申請", perform_reject_promise_path(@promise, token: @participant.token), method: :patch, class: 'btn btn-pink ms-5 my-5 px-5 py-2 fs-3' %>
+              <%= link_to "解除申請", request_cancel_promise_path(@promise, token: @participant.token), method: :patch, class: 'btn btn-pink ms-5 my-5 px-5 py-2 fs-3' %>
             <% else %>
               <p>完了待ちです。</p>
             <% end %>
@@ -94,9 +94,22 @@
             <% else %>
               <p class="text-success">承諾されています。立ち会い待ちです。</p>
             <% end %>
-          <% else %>
-            <%# witnessも立会完了済み %>
+          <% elsif @promise.progress == 6 %>
             <p class="text-success">この約束は達成されました。</p>
+          <% elsif @promise.progress == 7 %>
+            <% if @role == @promise.cancel_requested_by %>
+              <p class="text-danger">解除申請中です（相手の承認待ち）</p>
+            <% else %>
+              <%= button_to "解除を承認する", approve_cancel_promise_path(@promise, token: @participant.token), method: :patch, class: 'btn btn-teal my-5 px-5 py-2 fs-3' %>
+            <% end %>
+          <% elsif @promise.progress == 8 %>
+            <% if @role == 'witnesse' %>
+              <%= button_to "解除に立ち会う", complete_cancel_promise_path(@promise, token: @participant.token), method: :patch, class: 'btn btn-teal my-5 px-5 py-2 fs-3' %>
+            <% else %>
+              <p class="text-success">解除が承認されました（立会い待ち）</p>
+            <% end %>
+          <% elsif @promise.progress == 9 %>
+            <p class="text-muted">この約束は解除されました</p>
           <% end %>
         </div>
       <% end %>
