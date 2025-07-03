@@ -177,7 +177,7 @@ class PromisesController < ApplicationController
       redirect_to promise_path(@promise, token: params[:token]), status: :see_other
       return
     end
-    if params[:promise][:evidence].present?
+    if params[:promise].present? && params[:promise][:evidence].present?
       @promise.evidence.attach(params[:promise][:evidence])
       @promise.update!(progress: 4, completed_by: participant.role)
 
@@ -189,6 +189,7 @@ class PromisesController < ApplicationController
     else
       flash.now[:alert] = "画像を選択してください"
       render :complete_form, status: :unprocessable_entity
+      return
     end
   end
 
@@ -268,12 +269,12 @@ class PromisesController < ApplicationController
       redirect_to promise_path(@promise, token: params[:token]), status: :see_other and return
     end
 
-    @promise.update!(progress: 7, canceled_by: participant.role)
+    @promise.update!(progress: 7, cancel_requested_by: participant.role)
 
     # 相手方にメール通知
     target_role = participant.role == "offeror" ? "offeree" : "offeror"
     target = @promise.promise_participants.find_by(role: target_role)
-    PromiseMailer.cancel_request_notice(@promise, target).deliver_later
+    PromiseMailer.cancel_request_email(@promise, target).deliver_later
 
     redirect_to promise_path(@promise, token: params[:token]), notice: "解除申請を送信しました", status: :see_other
   end
@@ -298,9 +299,39 @@ class PromisesController < ApplicationController
 
     @promise.update!(progress: 8)
     witnesse = @promise.promise_participants.find_by(role: 'witnesse')
-    PromiseMailer.cancel_witnesse_email(@promise, witnesse).deliver_later
+    if witnesse.nil? || witnesse.guest.nil?
+      Rails.logger.error "[PromiseMailer] witnesse or witnesse.guest is nil"
+    else
+      PromiseMailer.cancel_witnesse_email(@promise, witnesse).deliver_later
+    end
+    #PromiseMailer.cancel_witnesse_email(@promise, witnesse).deliver_later
 
     redirect_to promise_path(@promise, token: params[:token]), notice: "解除を承認しました", status: :see_other
+  end
+
+  def reject_cancel
+    @promise = Promise.find(params[:id])
+    participant = @promise.promise_participants.find_by(token: params[:token])
+
+    unless %w[offeror offeree].include?(participant&.role)
+      render plain: "不正なアクセスです", status: :forbidden and return
+    end
+
+    # progressが7（解除申請中）でなければ無効
+    if @promise.progress != 7
+      redirect_to promise_path(@promise, token: params[:token]), notice: "解除申請はありません", status: :see_other
+      return
+    end
+
+    # 申請者自身は拒否できない
+    if participant.role == @promise.cancel_requested_by
+      render plain: "申請者は拒否できません", status: :forbidden and return
+    end
+
+    # progress を 3 に戻す（立会完了状態に戻す）
+    @promise.update!(progress: 3, cancel_requested_by: nil)
+
+    redirect_to promise_path(@promise, token: params[:token]), notice: "解除申請を拒否しました", status: :see_other
   end
 
   # 立会（progress: 9）

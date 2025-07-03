@@ -2,16 +2,14 @@
 <div class="container">
   <div class="row">
     <div class="col-lg-8 offset-lg-2">
-      <% if @role == 'offeror' %>
-        <% form_url = promise_path(@promise, token: @participant.token) %>
-      <% elsif @role == 'offeree' %>
-        <% form_url = review_completion_promise_path(@promise, token: @participant.token) %>
-      <% elsif @role == 'witnesse' %>
-        <% form_url = completion_witnesse_promise_path(@promise, token: @participant.token) %>
-      <% else %>
-        <p>この画面にはアクセスできません。</p>
-        <% return %>
+      <% flash.each do |key, message| %>
+        <% if message.present? %>
+          <div class="alert alert-<%= key == 'notice' ? 'success' : 'danger' %>">
+            <%= message %>
+          </div>
+        <% end %>
       <% end %>
+      <% form_url = promise_path(@promise, token: @participant.token) %>
       <%= form_with model: @promise, url: form_url, method: :patch, local: true do |f| %>
         <%= hidden_field_tag :token, @participant.token %>
         <%= render 'shared/error_messages', object: f.object %>
@@ -68,13 +66,14 @@
             <%= text_field_tag 'witnesse_name', nil, placeholder: witnesse_name, class: "form-control", readonly: true %>
           </div>
         </div>
+      <% end %>
 
         <div class="d-flex justify-content-center ">
           <% if @promise.progress == 3 %>
             <%# 立会済み %>
             <% if @role != 'witnesse' %>
               <%= link_to "完了申請", complete_form_promise_path(@promise, token: @participant.token), method: :get, class: 'btn btn-teal my-5 px-5 py-2 fs-3' %>
-              <%= link_to "解除申請", request_cancel_promise_path(@promise, token: @participant.token), method: :patch, class: 'btn btn-pink ms-5 my-5 px-5 py-2 fs-3' %>
+              <%= button_to "解除申請", request_cancel_promise_path(@promise, token: @participant.token), method: :patch, class: 'btn btn-pink ms-5 my-5 px-5 py-2 fs-3' %>
             <% else %>
               <p>完了待ちです。</p>
             <% end %>
@@ -100,7 +99,8 @@
             <% if @role == @promise.cancel_requested_by %>
               <p class="text-danger">解除申請中です（相手の承認待ち）</p>
             <% else %>
-              <%= button_to "解除を承認する", approve_cancel_promise_path(@promise, token: @participant.token), method: :patch, class: 'btn btn-teal my-5 px-5 py-2 fs-3' %>
+              <%= button_to "解除の承認", approve_cancel_promise_path(@promise, token: @participant.token), method: :patch, class: 'btn btn-teal my-5 px-5 py-2 fs-3' %>
+              <%= button_to "解除の拒否", reject_cancel_promise_path(@promise, token: @participant.token), method: :patch, class: 'btn btn-pink ms-5 my-5 px-5 py-2 fs-3' %>
             <% end %>
           <% elsif @promise.progress == 8 %>
             <% if @role == 'witnesse' %>
@@ -112,7 +112,6 @@
             <p class="text-muted">この約束は解除されました</p>
           <% end %>
         </div>
-      <% end %>
     </div>
   </div>
 </div>

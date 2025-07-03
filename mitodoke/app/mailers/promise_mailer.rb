@@ -42,12 +42,12 @@ class PromiseMailer < ApplicationMailer
   def cancel_request_email(promise, recipient)
     @promise = promise
     @recipient = recipient
-    mail(to: @recipient.email, subject: "【約束解除申請】相手から解除申請が届きました")
+    mail(to: @recipient.guest.email, subject: "【約束解除申請】相手から解除申請が届きました")
   end
 
-  def cancel_witnesse_email(promise, witness)
+  def cancel_witnesse_email(promise, witnesse)
     @promise = promise
-    @witness = witness
-    mail(to: @witness.email, subject: "【約束解除立会】解除に立ち会ってください")
+    @witnesse = witnesse
+    mail(to: @witnesse.guest.email, subject: "【約束解除立会】解除に立ち会ってください")
   end
 end

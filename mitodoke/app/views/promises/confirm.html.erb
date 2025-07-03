@@ -13,6 +13,14 @@
       <p>この画面にはアクセスできません。</p>
       <% return %>
     <% end %>
+      <% flash.each do |key, message| %>
+        <% if message.present? %>
+          <div class="alert alert-<%= key == 'notice' ? 'success' : 'danger' %>">
+            <%= message %>
+          </div>
+        <% end %>
+      <% end %>
+
       <%= form_with model: @promise, url: form_url, method: :patch do |f| %>
         <%= hidden_field_tag :token, @participant.token %>
         <%= render 'shared/error_messages', object: f.object %>
