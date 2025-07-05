@@ -1,5 +1,96 @@
-<div class="top-wrapper">
-  <div class="top-inner-text">
+<div class="container my-5">
+  <div class="text-center">
+    <h1 class="display-4 mb-3">信頼できる約束を、みんなで見届ける</h1>
+    <p class="lead">申込者・相手方・立会人の三者で、約束を記録し、確認し、完了まで安心して見守れます。</p>
+    <%= link_to t('top.start'), new_promise_path, class: "btn btn-teal px-5 py-4 fs-3" %>
+  </div>
+
+  <hr class="my-5">
+
+  <div class="row">
+    <h2><i class="bi bi-pen"></i> 使い方</h2>
+    <div class="col-md-4 my-4">
+      <h3 class="ms-4">申込者</h3>
+    </div>
+
+    <div class="col-md-4 my-4">
+      <h3 class="ms-4">相手方</h3>
+    </div>
+
+    <div class="col-md-4 my-4">
+      <h3 class="ms-4">立会人</h3>
+    </div>
+  </div>
+
+    <ol>
+      <li><strong>約束を開始</strong><br>
+        <div class="row mb-5">
+          <div class="col-md-3">
+            申込者、相手方、立会人を選んで<br>メールアドレスを入力します。
+            <%= image_tag 'flow1.jpg', alt: '関係者の追加', class: 'img-fluid rounded shadow mt-3', style: 'max-width: 100%; height: auto;' %>
+          </div>
+        </div>
+      </li>
+      <li><strong>約束を作成</strong><br>
+        <div class="row mb-4">
+          <div class="col-md-3">
+            約束の内容・期限・ペナルティを記入します。
+            <%= image_tag 'flow2-1.jpg', alt: '申込', class: 'img-fluid rounded shadow mt-3', style: 'max-width: 100%; height: auto;' %>
+          </div>
+          <div class="col-md-1 pt-5">
+            <i class="bi bi-forward"></i> <i class="bi bi-envelope"></i> <i class="bi bi-forward"></i>
+          </div>
+          <div class="col-md-3">
+            内容を確認して、承認／拒否を選択します。
+            <%= image_tag 'flow2-2.jpg', alt: '承認', class: 'img-fluid rounded shadow mt-3', style: 'max-width: 100%; height: auto;' %>
+          </div>
+          <div class="col-md-1 pt-5">
+            <i class="bi bi-forward"></i> <i class="bi bi-envelope"></i> <i class="bi bi-forward"></i>
+          </div>
+          <div class="col-md-3">
+            承認された約束に立ち会います。
+            <%= image_tag 'flow2-3.jpg', alt: '立会', class: 'img-fluid rounded shadow mt-3', style: 'max-width: 100%; height: auto;' %>
+          </div>
+        </div>
+      </li>
+      <li><strong>約束の完了</strong><br>
+        <div class="row mb-5">
+          <div class="col-md-3">
+            約束が完了したら、<br>そのことを証明できる画像をアップロードします。
+            <%= image_tag 'flow3-1-1.jpg', alt: '申込', class: 'img-fluid rounded shadow mt-3', style: 'max-width: 100%; height: auto;' %>
+            <%= image_tag 'flow3-1-2.jpg', alt: '申込', class: 'img-fluid rounded shadow mt-3', style: 'max-width: 100%; height: auto;' %>
+          </div>
+          <div class="col-md-1 pt-5">
+            <i class="bi bi-forward"></i> <i class="bi bi-envelope"></i> <i class="bi bi-forward"></i>
+          </div>
+          <div class="col-md-3">
+            &ensp;<br>証拠を確認して、承諾／却下を選択します。
+            <%= image_tag 'flow3-2-1.jpg', alt: '承認', class: 'img-fluid rounded shadow mt-3', style: 'max-width: 100%; height: auto;' %>
+            <%= image_tag 'flow3-2-2.jpg', alt: '申込', class: 'img-fluid rounded shadow mt-3', style: 'max-width: 100%; height: auto;' %>
+          </div>
+          <div class="col-md-1 pt-5">
+            <i class="bi bi-forward"></i> <i class="bi bi-envelope"></i> <i class="bi bi-forward"></i>
+          </div>
+          <div class="col-md-3">
+            &ensp;<br>完了した約束に立ち会います。
+            <%= image_tag 'flow3-3.jpg', alt: '立会', class: 'img-fluid rounded shadow mt-3', style: 'max-width: 100%; height: auto;' %>
+          </div>
+        </div>
+      </li>
+    </ol>
+    <p>※ 双方が合意すれば約束の解除（なかったことにする）も可能</p>
+
+  <hr class="my-5">
+  <h2 class="mt-4"><i class="bi bi-lock-fill"></i> 安心のしくみ</h2>
+  <ul>
+    <li>メール通知でステップが明確</li>
+    <li>証拠画像による完了申請</li>
+    <li>解除申請と承認のしくみも対応</li>
+  </ul>
+
+</div>
+<div class="container my-5">
+  <div class="text-center">
     <%= link_to t('top.start'), new_promise_path, class: "btn btn-teal px-5 py-4 fs-3" %>
   </div>
 </div>
