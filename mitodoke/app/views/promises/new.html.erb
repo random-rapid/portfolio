@@ -1,3 +1,11 @@
+<% flash.each do |key, message| %>
+  <% if message.present? %>
+    <div class="alert alert-<%= key == 'notice' ? 'success' : 'danger' %>">
+      <%= message.html_safe %>
+    </div>
+  <% end %>
+<% end %>
+
 <%= form_with url: promises_path do |f| %>
   <% [:offeror, :offeree, :witnesse].each do |role| %>
     <div class='row justify-content-center my-5 mx-5 fs-4'>
@@ -6,23 +14,23 @@
       </div>
       <div class="col-1">
         <%= label_tag "#{role}_family_name", 'family_name', class: "visually-hidden" %>
-        <%= text_field_tag "#{role}[family_name]", nil, placeholder: Guest.human_attribute_name("family_name"), class: 'form-control form-control-lg' %>
+        <%= text_field_tag "#{role}[family_name]", params.dig(role, :family_name), placeholder: Guest.human_attribute_name("family_name"), class: 'form-control form-control-lg' %>
       </div>
       <div class="col-1">
         <%= label_tag "#{role}_given_name", 'family_name', class: "visually-hidden" %>
-        <%= text_field_tag "#{role}[given_name]", nil, placeholder: Guest.human_attribute_name("given_name"), class: 'form-control form-control-lg' %>
+        <%= text_field_tag "#{role}[given_name]", params.dig(role, :given_name), placeholder: Guest.human_attribute_name("given_name"), class: 'form-control form-control-lg' %>
       </div>
       <%
 =begin %>
       <div class="col-3">
         <%= label_tag "#{role}_handle_name", 'family_name', class: "visually-hidden" %>
-        <%= text_field_tag "#{role}[handle_name]", nil, placeholder: Guest.human_attribute_name("handle_name"), class: 'form-control form-control-lg' %>
+        <%= text_field_tag "#{role}[handle_name]", params.dig(role, :handle_name), placeholder: Guest.human_attribute_name("handle_name"), class: 'form-control form-control-lg' %>
       </div>
       <%
 =end %>
       <div class="col-6">
         <%= label_tag "#{role}_email", 'family_name', class: "visually-hidden" %>
-        <%= email_field_tag "#{role}[email]", nil, placeholder: Guest.human_attribute_name("email"), class: 'form-control form-control-lg' %>
+        <%= email_field_tag "#{role}[email]", params.dig(role, :email), placeholder: Guest.human_attribute_name("email"), class: 'form-control form-control-lg' %>
       </div>  
     </div>
   <% end %>
