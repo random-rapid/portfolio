@@ -82,8 +82,10 @@
           <% if @promise.progress == 0 %>
             <%# まだoffereeが承認していない状態 %>
             <% if @role == 'offeror' %>
-              <p class="text-danger fs-4 text-center">この約束は拒否されました。</p>
-              <%= link_to "修正する", edit_promise_path(@promise, token: @participant.token), method: :get, class: 'btn btn-teal my-5 px-5 py-2 fs-3' %>
+              <div class="text-center">
+                <p class="text-danger fs-4">この約束は拒否されました。</p>
+                <%= link_to "修正する", edit_promise_path(@promise, token: @participant.token), method: :get, class: 'btn btn-teal my-5 px-5 py-2 fs-3' %>
+              </div>       
             <% else %>
               <p class="text-muted">この約束を拒否しました。</p>
             <% end %>
@@ -106,8 +108,10 @@
 
           <% else %>
             <%# witnessも立会完了済み %>
-            <p class="text-success">この約束の申請は完了しています。</p>
-            <%= link_to "詳細へ", promise_path(@promise, token: @participant.token), method: :get, class: 'btn btn-teal my-5 px-5 py-2 fs-3' %>
+            <div class="text-center">
+              <p class="text-success">この約束の申請は完了しています。</p>
+              <%= link_to "詳細へ", promise_path(@promise, token: @participant.token), method: :get, class: 'btn btn-teal my-5 px-5 py-2 fs-3' %>
+            </div>
           <% end %>
         </div>
       <% end %>

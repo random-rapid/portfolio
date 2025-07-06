@@ -3,35 +3,64 @@ class PromisesController < ApplicationController
     @promise = Promise.new
   end
 
-  def create
-    ActiveRecord::Base.transaction do
-      @promise = Promise.create!({ progress: 0 })
+def create
+  guest_errors = {}
+  guest_data_map = {}
 
-      [:offeror, :offeree, :witnesse].each do |role|
-        guest_data = params.require(role).permit(:family_name, :given_name, :email)#, :handle_name
-        guest = Guest.find_or_create_by!(email: guest_data[:email]) do |g|
-          g.family_name = guest_data[:family_name]
-          g.given_name = guest_data[:given_name]
-          #g.handle_name = guest_data[:handle_name]
-          g.email = guest_data[:email]
-        end
+  # ▼ 事前バリデーション
+  [:offeror, :offeree, :witnesse].each do |role|
+    raw_data = params.require(role).permit(:family_name, :given_name, :email)
+    missing_fields = []
+    missing_fields << '姓' if raw_data[:family_name].blank?
+    missing_fields << '名' if raw_data[:given_name].blank?
+    missing_fields << 'メールアドレス' if raw_data[:email].blank?
 
-        PromiseParticipant.create!(
-          promise: @promise,
-          guest: guest,
-          role: role,
-          token: SecureRandom.hex(32)
-        )
-      end
-
+    if missing_fields.any?
+      guest_errors[role] = "#{I18n.t("attributes.user.role.#{role}")}の#{missing_fields.join('、')}が未入力です"
+    else
+      guest_data_map[role] = raw_data
     end
-    offeror = @promise.promise_participants.find_by(role: 'offeror')
-    redirect_to edit_promise_url(@promise, token: offeror.token), success: t('defaults.flash_message.created', item: Promise.model_name.human)
-  rescue ActiveRecord::RecordInvalid => e
-    Rails.logger.error e.record.errors.full_messages
-    flash.now[:danger] = t('defaults.flash_message.not_created', item: Promise.model_name.human)
-    render :new, status: :unprocessable_entity
   end
+
+  # ▼ 入力不備がある場合、new を再表示
+  if guest_errors.any?
+    @promise = Promise.new
+    flash.now[:danger] = guest_errors.values.join('<br>').html_safe
+    render :new, status: :unprocessable_entity
+    return
+  end
+
+  # ▼ トランザクションで作成処理
+  ActiveRecord::Base.transaction do
+    @promise = Promise.create!(progress: 0)
+
+    guest_data_map.each do |role, guest_data|
+      guest = Guest.find_or_initialize_by(email: guest_data[:email])
+      guest.assign_attributes(
+        family_name: guest_data[:family_name],
+        given_name: guest_data[:given_name],
+        email: guest_data[:email] # find 用に使ってるので実質冗長ですが一応含めます
+      )
+      guest.save!
+
+      PromiseParticipant.create!(
+        promise: @promise,
+        guest: guest,
+        role: role,
+        token: SecureRandom.hex(32)
+      )
+    end
+  end
+
+  offeror = @promise.promise_participants.find_by(role: 'offeror')
+  redirect_to edit_promise_url(@promise, token: offeror.token),
+              success: t('defaults.flash_message.created', item: Promise.model_name.human)
+
+rescue ActiveRecord::RecordInvalid => e
+  Rails.logger.error e.record.errors.full_messages
+  flash.now[:danger] = t('defaults.flash_message.not_created', item: Promise.model_name.human)
+  render :new, status: :unprocessable_entity
+end
 
   def show
     @promise = Promise.find(params[:id])
